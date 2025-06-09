@@ -72,13 +72,13 @@ jobs:
 
       - name: Test
         env:
-          IMAGE_NAME: MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ inputs.tag }}
+          IMAGE_NAME: MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ inputs.tag || env.GITHUB_REF }}
         run: |
           ${{ inputs.folder }}/test.sh
 
       - name: Export image artifact
         run: |
-          docker image save MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ inputs.tag }} | gzip > ${{ env.IMAGE_REPOSITORY }}-${{ inputs.tag }}.tar.gz
+          docker image save MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ inputs.tag || env.GITHUB_REF }} | gzip > ${{ env.IMAGE_REPOSITORY }}-${{ inputs.tag }}.tar.gz
 
       - name: Upload image artifact
         uses: actions/upload-artifact@v4
@@ -90,7 +90,7 @@ jobs:
       - name: Compute versioned tag
         id: tag
         env:
-          IMAGE_NAME: MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ inputs.tag }}
+          IMAGE_NAME: MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ inputs.tag || env.GITHUB_REF }}
           CHROMIUM_VERSION_REGEXP: 'Chromium ([0-9]+)\.'
           CHROMEDRIVER_VERSION_REGEXP: 'ChromeDriver ([0-9]+)\.'
         run: |
