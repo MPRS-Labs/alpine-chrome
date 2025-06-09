@@ -68,29 +68,29 @@ jobs:
           context: ${{ inputs.folder }}
           load: true
           labels: ${{ steps.meta.outputs.labels }}
-          tags: MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ inputs.tag || env.GITHUB_REF }}
+          tags: MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ env.GITHUB_REF }}
 
       - name: Test
         env:
-          IMAGE_NAME: MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ inputs.tag || env.GITHUB_REF }}
+          IMAGE_NAME: MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ env.GITHUB_REF }}
         run: |
           ${{ inputs.folder }}/test.sh
 
       - name: Export image artifact
         run: |
-          docker image save MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ inputs.tag || env.GITHUB_REF }} | gzip > ${{ env.IMAGE_REPOSITORY }}-${{ inputs.tag }}.tar.gz
+          docker image save MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ env.GITHUB_REF }} | gzip > ${{ env.IMAGE_REPOSITORY }}:${{ env.GITHUB_REF }}.tar.gz
 
       - name: Upload image artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.IMAGE_REPOSITORY }}-${{ inputs.tag }}
-          path: ${{ env.IMAGE_REPOSITORY }}-${{ inputs.tag }}.tar.gz
+          name: ${{ env.IMAGE_REPOSITORY }}:${{ env.GITHUB_REF }}
+          path: ${{ env.IMAGE_REPOSITORY }}:${{ env.GITHUB_REF }}.tar.gz
           retention-days: 1
 
       - name: Compute versioned tag
         id: tag
         env:
-          IMAGE_NAME: MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ inputs.tag || env.GITHUB_REF }}
+          IMAGE_NAME: MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ env.GITHUB_REF }}
           CHROMIUM_VERSION_REGEXP: 'Chromium ([0-9]+)\.'
           CHROMEDRIVER_VERSION_REGEXP: 'ChromeDriver ([0-9]+)\.'
         run: |
