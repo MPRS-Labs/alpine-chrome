@@ -68,7 +68,7 @@ jobs:
           context: ${{ inputs.folder }}
           load: true
           labels: ${{ steps.meta.outputs.labels }}
-          tags: MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ inputs.tag }}
+          tags: MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ inputs.tag || env.GITHUB_REF }}
 
       - name: Test
         env:
