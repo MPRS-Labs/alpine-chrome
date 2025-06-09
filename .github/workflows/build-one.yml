@@ -68,29 +68,29 @@ jobs:
           context: ${{ inputs.folder }}
           load: true
           labels: ${{ steps.meta.outputs.labels }}
-          tags: MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ github.ref }}
+          tags: MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ github.ref_name }}
 
       - name: Test
         env:
-          IMAGE_NAME: MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ github.ref }}
+          IMAGE_NAME: MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ github.ref_name }}
         run: |
           ${{ inputs.folder }}/test.sh
 
       - name: Export image artifact
         run: |
-          docker image save MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ github.ref }} | gzip > ${{ env.IMAGE_REPOSITORY }}:${{ github.ref }}.tar.gz
+          docker image save MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ github.ref_name }} | gzip > ${{ env.IMAGE_REPOSITORY }}:${{ github.ref_name }}.tar.gz
 
       - name: Upload image artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.IMAGE_REPOSITORY }}:${{ github.ref }}
-          path: ${{ env.IMAGE_REPOSITORY }}:${{ github.ref }}.tar.gz
+          name: ${{ env.IMAGE_REPOSITORY }}:${{ github.ref_name }}
+          path: ${{ env.IMAGE_REPOSITORY }}:${{ github.ref_name }}.tar.gz
           retention-days: 1
 
       - name: Compute versioned tag
         id: tag
         env:
-          IMAGE_NAME: MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ github.ref }}
+          IMAGE_NAME: MPRS-Labs/${{ env.IMAGE_REPOSITORY }}:${{ github.ref_name }}
           CHROMIUM_VERSION_REGEXP: 'Chromium ([0-9]+)\.'
           CHROMEDRIVER_VERSION_REGEXP: 'ChromeDriver ([0-9]+)\.'
         run: |
@@ -122,7 +122,7 @@ jobs:
           echo "value=${TAG}" >> $GITHUB_OUTPUT
 
       - name: Login to GitHub Container registry
-        if: ${{ github.ref == 'refs/heads/master' }}
+        if: ${{ github.ref_name == 'refs/heads/master' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -130,13 +130,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx with docker-container driver
-        if: ${{ github.ref == 'refs/heads/master' }}
+        if: ${{ github.ref_name == 'refs/heads/master' }}
         uses: docker/setup-buildx-action@v3
         with:
           driver: docker-container
 
       - name: Build and push
-        if: ${{ github.ref == 'refs/heads/master' }}
+        if: ${{ github.ref_name == 'refs/heads/master' }}
         env:
           IMAGE_NAME: ${{ env.IMAGE_REPOSITORY }}:${{ inputs.tag }}
           IMAGE_VERSIONED_NAME: ${{ env.IMAGE_REPOSITORY }}:${{ steps.tag.outputs.value }}
